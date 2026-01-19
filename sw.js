@@ -1,5 +1,4 @@
-// Cache bump para forzar actualización en iOS/Safari
-const CACHE_NAME = 'barber-turnos-vip-v3';
+const CACHE_NAME = 'barber-turnos-vip-v1-v1768804371';
 const ASSETS = [
   './',
   './index.html',

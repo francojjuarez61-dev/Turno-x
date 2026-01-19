@@ -133,8 +133,7 @@ body{
   position:absolute;
   inset:-18%;
   border-radius:999px;
-  z-index: 0;
-  opacity: .75;
+  opacity: .25;
   filter: blur(24px);
   background: radial-gradient(circle at 50% 55%,
     rgba(79,209,255,0.20) 0%,
@@ -144,53 +143,10 @@ body{
   pointer-events:none;
 }
 
-
-/* Halo dinámico (OPCIÓN 3) - UI only: energía suave alrededor del aro */
-.ring-halo{
-  position:absolute;
-  /* Más notorio en iOS/Safari (sin puntos decorativos) */
-  inset:-22%;
-  border-radius:999px;
-  pointer-events:none;
-  z-index: 1;
-  opacity: .82;
-  filter: blur(26px);
-  background: radial-gradient(circle at 50% 50%,
-    rgba(79,209,255,0.38) 0%,
-    rgba(79,209,255,0.18) 30%,
-    rgba(79,209,255,0.00) 66%);
-  transform: scale(0.975);
-  animation: haloPulse 2.35s ease-in-out infinite;
-  will-change: transform, opacity, filter;
-}
-
-@keyframes haloPulse{
-  0%,100%{ transform: scale(0.965); opacity: .62; }
-  50%{ transform: scale(1.02); opacity: .92; }
-}
-
-/* Ajuste por estado (sin tocar lógica) */
-.ring[data-mode="normal"] .ring-halo{
-  background: radial-gradient(circle at 50% 50%,
-    rgba(79,209,255,0.38) 0%,
-    rgba(79,209,255,0.18) 30%,
-    rgba(79,209,255,0.00) 66%);
-}
-
-.ring[data-mode="overtime"] .ring-halo{
-  background: radial-gradient(circle at 50% 50%,
-    rgba(255,43,74,0.40) 0%,
-    rgba(255,43,74,0.18) 30%,
-    rgba(255,43,74,0.00) 66%);
-  opacity: .92;
-  filter: blur(28px);
-}
-
 .ring-svg{
   position:absolute;
   inset:0;
   transform: rotate(-90deg);
-  z-index: 2;
 }
 
 .ring-track,
@@ -203,6 +159,11 @@ body{
 /* UI only: el track es un circulo completo; con linecap:round puede aparecer un "punto"/seam
    en algunos navegadores (iOS/Safari). Lo dejamos en butt para evitar ese artefacto visual. */
 .ring-track{ stroke-linecap: butt; }
+
+/* UI only: el indicador de "punto" lo maneja .ring-cap.
+   En iOS/Safari, stroke-linecap:round en el progreso puede mostrar un segundo punto
+   (el extremo inicial del trazo) que se percibe como decorativo/erróneo. Lo pasamos a butt
+   para eliminar ese artefacto sin cambiar lógica ni cálculos. */
 .ring-progress{ stroke-linecap: butt; }
 
 .ring-track{ stroke: rgba(234,242,248,0.12); }
@@ -216,14 +177,23 @@ body{
   transition: stroke .32s ease, filter .32s ease;
 }
 
+.ring-cap{
+  fill: var(--primary);
+  opacity: 0;
+  filter: drop-shadow(0 0 10px rgba(79,209,255,0.28));
+  transition: opacity .25s ease, fill .32s ease;
+  animation: capPulse 1.45s ease-in-out infinite;
+}
 
-
+@keyframes capPulse{
+  0%,100%{ transform: scale(1); }
+  50%{ transform: scale(1.08); }
+}
 
 .ring-content{
   position:absolute;
   inset: 18%;
   border-radius: 999px;
-  z-index: 3;
   background: radial-gradient(circle at 50% 38%,
     rgba(18,26,34,0.92),
     rgba(18,26,34,0.55));
@@ -272,12 +242,14 @@ body{
     rgba(11,15,20,0) 72%);
 }
 
-.ring[data-mode="overtime"] .ring-progress{ stroke: url(#ringRed); filter: url(#glowRed); }.ring[data-mode="overtime"] .ring-ambient{
+.ring[data-mode="overtime"] .ring-progress{ stroke: url(#ringRed); filter: url(#glowRed); }
+.ring[data-mode="overtime"] .ring-cap{ fill: var(--red2); filter: drop-shadow(0 0 12px rgba(255,43,74,0.28)); }
+.ring[data-mode="overtime"] .ring-ambient{
   background: radial-gradient(circle at 50% 55%,
     rgba(255,43,74,0.25) 0%,
     rgba(138,15,29,0.12) 35%,
     rgba(11,15,20,0) 72%);
-  opacity: .95;
+  opacity: .25;
 }
 
 .ring:active .ring-content{
@@ -684,15 +656,13 @@ body{
 
 /* Allow vertical interactions inside sheets */
 .modal-sheet{ touch-action: pan-y; }
+
 /* ================================
    HALO DINAMICO (Opción 3) - iOS SAFE
    UI ONLY: no toca lógica ni JS
 ================================== */
 
-.ring{
-  position: relative; /* asegurar pseudo-elementos */
-  isolation: isolate; /* evita mezclas raras en iOS */
-}
+.ring{ position: relative; isolation: isolate; }
 
 /* Halo visible SI o SI (CSS con mask, compatible iOS) */
 .ring::before{
@@ -703,7 +673,6 @@ body{
   pointer-events:none;
   z-index: 0;
 
-  /* anillo luminoso */
   background: conic-gradient(
     from -90deg,
     rgba(79,209,255,0.00),
@@ -713,21 +682,16 @@ body{
     rgba(79,209,255,0.00)
   );
 
-  /* recorta el centro para que sea anillo (no disco) */
-  -webkit-mask: radial-gradient(
-    closest-side,
+  -webkit-mask: radial-gradient(closest-side,
     transparent 58%,
     #000 66%,
     #000 72%,
-    transparent 80%
-  );
-          mask: radial-gradient(
-    closest-side,
+    transparent 80%);
+          mask: radial-gradient(closest-side,
     transparent 58%,
     #000 66%,
     #000 72%,
-    transparent 80%
-  );
+    transparent 80%);
 
   filter: blur(14px);
   opacity: 0.95;
@@ -735,7 +699,6 @@ body{
   animation: haloBreath 2.6s ease-in-out infinite;
 }
 
-/* “haze” extra (suave) para que se sienta premium */
 .ring::after{
   content:"";
   position:absolute;
@@ -747,32 +710,24 @@ body{
   background: radial-gradient(circle at 50% 55%,
     rgba(79,209,255,0.18) 0%,
     rgba(79,209,255,0.06) 35%,
-    rgba(11,15,20,0.00) 72%
-  );
+    rgba(11,15,20,0.00) 72%);
 
   filter: blur(22px);
   opacity: 0.75;
   animation: haloDrift 3.4s ease-in-out infinite;
 }
 
-/* asegura que el SVG + contenido queden por encima del halo */
-.ring-svg,
-.ring-content{
-  position: relative;
-  z-index: 2;
-}
+.ring-svg, .ring-content{ position: relative; z-index: 2; }
 
 @keyframes haloBreath{
   0%,100% { transform: scale(1);     opacity: 0.85; }
   50%     { transform: scale(1.02);  opacity: 1.00; }
 }
-
 @keyframes haloDrift{
   0%,100% { transform: scale(1);     opacity: 0.65; }
   50%     { transform: scale(1.03);  opacity: 0.90; }
 }
 
-/* overtime: cambia a rojo profundo */
 .ring[data-mode="overtime"]::before{
   background: conic-gradient(
     from -90deg,
@@ -790,7 +745,6 @@ body{
   background: radial-gradient(circle at 50% 55%,
     rgba(255,43,74,0.22) 0%,
     rgba(138,15,29,0.10) 38%,
-    rgba(11,15,20,0.00) 72%
-  );
+    rgba(11,15,20,0.00) 72%);
   opacity: 0.82;
 }

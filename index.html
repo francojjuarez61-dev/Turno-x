@@ -45,7 +45,6 @@
     <section class="hero">
       <button id="ringBtn" class="ring" type="button" aria-label="Iniciar o finalizar servicio" data-mode="normal">
         <div class="ring-ambient" aria-hidden="true"></div>
-        <div class="ring-halo" aria-hidden="true"></div>
 
         <svg class="ring-svg" viewBox="0 0 200 200" aria-hidden="true">
           <defs>
@@ -89,7 +88,9 @@
           </defs>
 
           <circle class="ring-track" cx="100" cy="100" r="78"></circle>
-          <circle id="ringProgress" class="ring-progress" cx="100" cy="100" r="78"></circle></svg>
+          <circle id="ringProgress" class="ring-progress" cx="100" cy="100" r="78"></circle>
+          <circle id="ringCap" class="ring-cap" cx="100" cy="22" r="4"></circle>
+        </svg>
 
         <div class="ring-content">
           <div id="ringState" class="ring-state">INICIAR</div>
