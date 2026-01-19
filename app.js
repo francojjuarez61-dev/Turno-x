@@ -144,7 +144,7 @@ function setProgress(p01){
   // UI only: convert timer progress into a 'liquid fill' level inside the main button.
   // p01 = elapsed/base (0..1) in normal mode, or cycle (0..1) in overtime.
   const level = Math.max(0, Math.min(1, 1 - p01));
-  ringBtn.style.setProperty('--liquid-level', String(level));
+  ringBtn.style.setProperty("--liquid-pct", `${(level * 100).toFixed(2)}%`);
   // Keep SVG progress technically updated (hidden), but remove any moving cap/dots.
   const offset = C * p01;
   ringProgress.style.strokeDashoffset = `${offset}`;

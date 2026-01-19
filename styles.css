@@ -206,7 +206,7 @@ body{
 .ring-content{
   position: relative;
   overflow: hidden;
-  --lvl: var(--liquid-level);
+  --lvl: var(--liquid-level, 0);
 
   position:absolute;
   inset: 18%;
@@ -785,3 +785,75 @@ body.overtime .liquid::before{
 body.overtime .liquid-glow{
   background: radial-gradient(circle at 50% 55%, rgba(255,43,74,0.22), rgba(11,15,20,0) 68%);
 }
+
+/* ==============================
+   LIQUID TIMER VISUAL (iOS-safe)
+   Fix: avoid calc() multiplication that breaks on iOS Safari.
+   ============================== */
+
+/* Hide the old SVG ring (you asked to remove the ring around the button) */
+.ring-ambient{ display:none !important; }
+.ring-svg{ display:none !important; }
+
+/* Make the button itself the hero circle */
+.ring-content{
+  inset: 0 !important;
+  overflow: hidden;
+}
+
+/* Keep liquid layers behind text */
+.ring-content > :not(.liquid){ position: relative; z-index: 1; }
+.liquid{ z-index: 0; }
+
+/* Liquid fill uses percent var set by JS: --liquid-pct (0%..100%) */
+.ring{ --liquid-pct: 0%; }
+.liquid{ height: var(--liquid-pct, 0%); }
+
+/* Text inversion: cyan/red above the liquid line, dark ink where liquid is behind */
+.ring-content{ --ink: rgba(10,12,16,0.92); --top: var(--primary); --topMuted: rgba(138,155,168,0.92); }
+
+.ring-state,
+.ring-time{
+  color: transparent !important;
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-image: linear-gradient(to top,
+    var(--ink) 0 var(--liquid-pct, 0%),
+    var(--top) var(--liquid-pct, 0%) 100%
+  );
+}
+
+.ring-end,
+.ring-meta{
+  color: transparent !important;
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-image: linear-gradient(to top,
+    rgba(10,12,16,0.75) 0 var(--liquid-pct, 0%),
+    var(--topMuted) var(--liquid-pct, 0%) 100%
+  );
+}
+
+/* Overtime: red everywhere */
+.ring[data-mode="overtime"] .ring-content{ --top: var(--red2); }
+.ring[data-mode="overtime"] .ring-content{ --topMuted: rgba(255,255,255,0.82); }
+
+/* Slight outline to keep the circle defined even with empty liquid */
+.ring-content{
+  border: 1px solid rgba(234,242,248,0.10);
+  box-shadow:
+    0 0 0 1px rgba(234,242,248,0.02) inset,
+    0 18px 60px rgba(0,0,0,0.78);
+}
+
+/* When overtime, make the circle glow red (and the page tint already happens via body.overtime) */
+.ring[data-mode="overtime"] .ring-content{
+  border-color: rgba(255,43,74,0.28);
+  box-shadow:
+    0 0 0 1px rgba(255,43,74,0.10) inset,
+    0 0 50px rgba(255,43,74,0.22),
+    0 18px 60px rgba(0,0,0,0.78);
+}
+
