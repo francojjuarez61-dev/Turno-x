@@ -133,7 +133,7 @@ body{
   position:absolute;
   inset:-18%;
   border-radius:999px;
-  opacity: .25;
+  opacity: .75;
   filter: blur(24px);
   background: radial-gradient(circle at 50% 55%,
     rgba(79,209,255,0.20) 0%,
@@ -141,6 +141,7 @@ body{
     rgba(11,15,20,0) 72%);
   transition: background .32s ease, opacity .32s ease;
   pointer-events:none;
+  animation: haloBreath 1.9s ease-in-out infinite;
 }
 
 .ring-svg{
@@ -183,6 +184,11 @@ body{
   filter: drop-shadow(0 0 10px rgba(79,209,255,0.28));
   transition: opacity .25s ease, fill .32s ease;
   animation: capPulse 1.45s ease-in-out infinite;
+}
+
+@keyframes haloBreath{
+  0%,100%{ transform: scale(1); opacity: .70; }
+  50%{ transform: scale(1.06); opacity: .92; }
 }
 
 @keyframes capPulse{
@@ -245,11 +251,12 @@ body{
 .ring[data-mode="overtime"] .ring-progress{ stroke: url(#ringRed); filter: url(#glowRed); }
 .ring[data-mode="overtime"] .ring-cap{ fill: var(--red2); filter: drop-shadow(0 0 12px rgba(255,43,74,0.28)); }
 .ring[data-mode="overtime"] .ring-ambient{
+  animation-duration: 1.25s;
   background: radial-gradient(circle at 50% 55%,
     rgba(255,43,74,0.25) 0%,
     rgba(138,15,29,0.12) 35%,
     rgba(11,15,20,0) 72%);
-  opacity: .25;
+  opacity: .95;
 }
 
 .ring:active .ring-content{
@@ -656,95 +663,3 @@ body{
 
 /* Allow vertical interactions inside sheets */
 .modal-sheet{ touch-action: pan-y; }
-
-/* ================================
-   HALO DINAMICO (Opción 3) - iOS SAFE
-   UI ONLY: no toca lógica ni JS
-================================== */
-
-.ring{ position: relative; isolation: isolate; }
-
-/* Halo visible SI o SI (CSS con mask, compatible iOS) */
-.ring::before{
-  content:"";
-  position:absolute;
-  inset:-18%;
-  border-radius:999px;
-  pointer-events:none;
-  z-index: 0;
-
-  background: conic-gradient(
-    from -90deg,
-    rgba(79,209,255,0.00),
-    rgba(79,209,255,0.55),
-    rgba(79,209,255,0.15),
-    rgba(79,209,255,0.55),
-    rgba(79,209,255,0.00)
-  );
-
-  -webkit-mask: radial-gradient(closest-side,
-    transparent 58%,
-    #000 66%,
-    #000 72%,
-    transparent 80%);
-          mask: radial-gradient(closest-side,
-    transparent 58%,
-    #000 66%,
-    #000 72%,
-    transparent 80%);
-
-  filter: blur(14px);
-  opacity: 0.95;
-
-  animation: haloBreath 2.6s ease-in-out infinite;
-}
-
-.ring::after{
-  content:"";
-  position:absolute;
-  inset:-28%;
-  border-radius:999px;
-  pointer-events:none;
-  z-index: 0;
-
-  background: radial-gradient(circle at 50% 55%,
-    rgba(79,209,255,0.18) 0%,
-    rgba(79,209,255,0.06) 35%,
-    rgba(11,15,20,0.00) 72%);
-
-  filter: blur(22px);
-  opacity: 0.75;
-  animation: haloDrift 3.4s ease-in-out infinite;
-}
-
-.ring-svg, .ring-content{ position: relative; z-index: 2; }
-
-@keyframes haloBreath{
-  0%,100% { transform: scale(1);     opacity: 0.85; }
-  50%     { transform: scale(1.02);  opacity: 1.00; }
-}
-@keyframes haloDrift{
-  0%,100% { transform: scale(1);     opacity: 0.65; }
-  50%     { transform: scale(1.03);  opacity: 0.90; }
-}
-
-.ring[data-mode="overtime"]::before{
-  background: conic-gradient(
-    from -90deg,
-    rgba(255,43,74,0.00),
-    rgba(255,43,74,0.55),
-    rgba(138,15,29,0.22),
-    rgba(255,43,74,0.55),
-    rgba(255,43,74,0.00)
-  );
-  filter: blur(15px);
-  opacity: 0.98;
-}
-
-.ring[data-mode="overtime"]::after{
-  background: radial-gradient(circle at 50% 55%,
-    rgba(255,43,74,0.22) 0%,
-    rgba(138,15,29,0.10) 38%,
-    rgba(11,15,20,0.00) 72%);
-  opacity: 0.82;
-}
