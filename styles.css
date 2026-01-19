@@ -684,3 +684,113 @@ body{
 
 /* Allow vertical interactions inside sheets */
 .modal-sheet{ touch-action: pan-y; }
+/* ================================
+   HALO DINAMICO (Opción 3) - iOS SAFE
+   UI ONLY: no toca lógica ni JS
+================================== */
+
+.ring{
+  position: relative; /* asegurar pseudo-elementos */
+  isolation: isolate; /* evita mezclas raras en iOS */
+}
+
+/* Halo visible SI o SI (CSS con mask, compatible iOS) */
+.ring::before{
+  content:"";
+  position:absolute;
+  inset:-18%;
+  border-radius:999px;
+  pointer-events:none;
+  z-index: 0;
+
+  /* anillo luminoso */
+  background: conic-gradient(
+    from -90deg,
+    rgba(79,209,255,0.00),
+    rgba(79,209,255,0.55),
+    rgba(79,209,255,0.15),
+    rgba(79,209,255,0.55),
+    rgba(79,209,255,0.00)
+  );
+
+  /* recorta el centro para que sea anillo (no disco) */
+  -webkit-mask: radial-gradient(
+    closest-side,
+    transparent 58%,
+    #000 66%,
+    #000 72%,
+    transparent 80%
+  );
+          mask: radial-gradient(
+    closest-side,
+    transparent 58%,
+    #000 66%,
+    #000 72%,
+    transparent 80%
+  );
+
+  filter: blur(14px);
+  opacity: 0.95;
+
+  animation: haloBreath 2.6s ease-in-out infinite;
+}
+
+/* “haze” extra (suave) para que se sienta premium */
+.ring::after{
+  content:"";
+  position:absolute;
+  inset:-28%;
+  border-radius:999px;
+  pointer-events:none;
+  z-index: 0;
+
+  background: radial-gradient(circle at 50% 55%,
+    rgba(79,209,255,0.18) 0%,
+    rgba(79,209,255,0.06) 35%,
+    rgba(11,15,20,0.00) 72%
+  );
+
+  filter: blur(22px);
+  opacity: 0.75;
+  animation: haloDrift 3.4s ease-in-out infinite;
+}
+
+/* asegura que el SVG + contenido queden por encima del halo */
+.ring-svg,
+.ring-content{
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes haloBreath{
+  0%,100% { transform: scale(1);     opacity: 0.85; }
+  50%     { transform: scale(1.02);  opacity: 1.00; }
+}
+
+@keyframes haloDrift{
+  0%,100% { transform: scale(1);     opacity: 0.65; }
+  50%     { transform: scale(1.03);  opacity: 0.90; }
+}
+
+/* overtime: cambia a rojo profundo */
+.ring[data-mode="overtime"]::before{
+  background: conic-gradient(
+    from -90deg,
+    rgba(255,43,74,0.00),
+    rgba(255,43,74,0.55),
+    rgba(138,15,29,0.22),
+    rgba(255,43,74,0.55),
+    rgba(255,43,74,0.00)
+  );
+  filter: blur(15px);
+  opacity: 0.98;
+}
+
+.ring[data-mode="overtime"]::after{
+  background: radial-gradient(circle at 50% 55%,
+    rgba(255,43,74,0.22) 0%,
+    rgba(138,15,29,0.10) 38%,
+    rgba(11,15,20,0.00) 72%
+  );
+  opacity: 0.82;
+}
