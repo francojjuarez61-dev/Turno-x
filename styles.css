@@ -1,4 +1,7 @@
 :root{
+  --liquid-level: 1; /* 1=full, 0=empty (UI only) */
+  --liquid-hue: var(--primary);
+
   /* Futurista / premium oscuro (UI only)
      “El rediseño es 100% visual (UI only).
       No se debe modificar ningún estado, lógica, evento ni flujo funcional de la aplicación.” */
@@ -148,7 +151,11 @@ body{
   position:absolute;
   inset:0;
   transform: rotate(-90deg);
+  opacity: 0;
+  pointer-events: none;
+  display: none;
 }
+
 
 .ring-track,
 .ring-progress{
@@ -197,6 +204,10 @@ body{
 }
 
 .ring-content{
+  position: relative;
+  overflow: hidden;
+  --lvl: var(--liquid-level);
+
   position:absolute;
   inset: 18%;
   border-radius: 999px;
@@ -663,3 +674,114 @@ body{
 
 /* Allow vertical interactions inside sheets */
 .modal-sheet{ touch-action: pan-y; }
+
+
+/* ===== LIQUID TIMER (UI ONLY) ===== */
+.liquid{
+  position:absolute;
+  inset:0;
+  border-radius: 999px;
+  overflow:hidden;
+  pointer-events:none;
+}
+
+/* The fill: moves DOWN as time runs out (lvl goes 1 -> 0) */
+.liquid::before{
+  content:"";
+  position:absolute;
+  left:-10%;
+  right:-10%;
+  bottom:0;
+  height: calc(var(--lvl) * 100%);
+  border-radius: 999px 999px 0 0;
+  background:
+    radial-gradient(120% 80% at 50% 18%, rgba(255,255,255,0.45), rgba(255,255,255,0) 55%),
+    linear-gradient(180deg, rgba(255,255,255,0.18), rgba(0,0,0,0) 40%),
+    linear-gradient(180deg, rgba(79,209,255,0.95), rgba(31,185,255,0.72));
+  filter: blur(0px);
+  box-shadow: 0 0 26px rgba(79,209,255,0.22), 0 0 60px rgba(79,209,255,0.12);
+  transition: height 0.25s linear, background 0.32s ease, box-shadow 0.32s ease;
+}
+
+/* moving surface waves */
+.liquid-wave{
+  position:absolute;
+  left:-20%;
+  width: 140%;
+  height: 46px;
+  bottom: calc(var(--lvl) * 100% - 18px);
+  border-radius: 999px;
+  background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.22), rgba(255,255,255,0) 60%);
+  opacity: 0.45;
+  filter: blur(0.2px);
+  mix-blend-mode: overlay;
+  pointer-events:none;
+}
+.liquid-wave.wave1{
+  animation: waveMove1 2.8s linear infinite;
+  transform: translateX(0);
+}
+.liquid-wave.wave2{
+  height: 56px;
+  opacity: 0.30;
+  animation: waveMove2 4.2s linear infinite;
+}
+@keyframes waveMove1{
+  from{ transform: translateX(-6%); }
+  to{ transform: translateX(6%); }
+}
+@keyframes waveMove2{
+  from{ transform: translateX(6%); }
+  to{ transform: translateX(-6%); }
+}
+
+.liquid-glow{
+  position:absolute;
+  inset:-22%;
+  border-radius: 999px;
+  background: radial-gradient(circle at 50% 55%, rgba(79,209,255,0.20), rgba(11,15,20,0) 68%);
+  opacity: 0.8;
+  filter: blur(24px);
+}
+
+/* Text inside button becomes dark/contrasty over the bright liquid */
+.ring-state, .ring-time, .ring-end, .ring-meta{
+  color: rgba(11,15,20,0.86);
+  text-shadow: 0 1px 0 rgba(255,255,255,0.22);
+}
+.ring-end{ color: rgba(11,15,20,0.60); }
+.ring-meta{ color: rgba(11,15,20,0.62); }
+
+/* When idle (no liquid visible), keep a subtle light scrim for readability */
+.ring-content::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:999px;
+  background: radial-gradient(circle at 50% 40%, rgba(255,255,255,0.14), rgba(255,255,255,0.06) 55%, rgba(255,255,255,0.03));
+  pointer-events:none;
+}
+.ring-content > *{ position: relative; z-index: 1; }
+
+/* OVERTIME: red liquid + global red ambience */
+body.overtime::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(900px 560px at 50% 18%, rgba(255,43,74,0.18), rgba(11,15,20,0) 62%),
+    radial-gradient(700px 520px at 72% 68%, rgba(255,43,74,0.12), rgba(11,15,20,0) 70%),
+    linear-gradient(180deg, rgba(255,43,74,0.08), rgba(11,15,20,0) 52%);
+  pointer-events:none;
+  z-index: 0;
+}
+body.overtime .liquid::before{
+  background:
+    radial-gradient(120% 80% at 50% 18%, rgba(255,255,255,0.38), rgba(255,255,255,0) 55%),
+    linear-gradient(180deg, rgba(255,255,255,0.14), rgba(0,0,0,0) 40%),
+    linear-gradient(180deg, rgba(255,43,74,0.95), rgba(138,15,29,0.75));
+  box-shadow: 0 0 30px rgba(255,43,74,0.22), 0 0 70px rgba(255,43,74,0.12);
+}
+body.overtime .liquid-glow{
+  background: radial-gradient(circle at 50% 55%, rgba(255,43,74,0.22), rgba(11,15,20,0) 68%);
+}

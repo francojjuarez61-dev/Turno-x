@@ -134,23 +134,24 @@ function fmtDurHM(min){
   return r ? `${h}h ${r}m` : `${h}h`;
 }
 
-function setMode(mode){ ringBtn.dataset.mode = mode; }
+function setMode(mode){
+  ringBtn.dataset.mode = mode;
+  // UI only: tint the whole UI when overtime
+  document.body.classList.toggle('overtime', mode === 'overtime');
+}
 
 function setProgress(p01){
-  // UI only: el aro empieza "encendido" (completo) y se va apagando a medida que pasa el tiempo.
-  // No cambia cálculos del timer, solo la representación visual.
+  // UI only: convert timer progress into a 'liquid fill' level inside the main button.
+  // p01 = elapsed/base (0..1) in normal mode, or cycle (0..1) in overtime.
+  const level = Math.max(0, Math.min(1, 1 - p01));
+  ringBtn.style.setProperty('--liquid-level', String(level));
+  // Keep SVG progress technically updated (hidden), but remove any moving cap/dots.
   const offset = C * p01;
   ringProgress.style.strokeDashoffset = `${offset}`;
-
-  // El punto luminoso marca el borde entre parte encendida y apagada.
-  const edge = 1 - p01;
-  const angle = (Math.PI * 2) * edge - Math.PI/2;
-  const cx = 100 + Math.cos(angle) * R;
-  const cy = 100 + Math.sin(angle) * R;
-  ringCap.setAttribute('cx', cx.toFixed(2));
-  ringCap.setAttribute('cy', cy.toFixed(2));
-  ringCap.style.opacity = running ? '0.9' : '0';
+  // No cap positioning; avoid decorative moving dot artifacts.
+  if (ringCap) ringCap.style.opacity = '0';
 }
+
 
 function tick(){
   const now = Date.now();
@@ -208,7 +209,7 @@ function startTimer(durationMs){
   warnedOvertime = false;
 
   setMode('normal');
-  ringCap.style.opacity = '0.9';
+  ringCap.style.opacity = '0';
 
   cancelAnimationFrame(rafId);
   rafId = requestAnimationFrame(tick);
