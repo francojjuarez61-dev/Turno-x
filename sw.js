@@ -1,4 +1,4 @@
-const CACHE_NAME = 'barber-turnos-vip-v1-haloFix1';
+const CACHE_NAME = 'barber-turnos-vip-v1-liquidv3';
 const ASSETS = [
   './',
   './index.html',
